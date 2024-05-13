@@ -1,9 +1,12 @@
 import cv2 as cv
+import numpy as np
 
 img = cv.imread('Resources/Photos/cats.jpg')
 cv.imshow('Cats', img) # window name (can be anything), image object
-
 # Countours are the boundaries of the objects in an image, used for object detection
+
+blank = np.zeros(img.shape, dtype='uint8') # Create a blank image with the same shape as the image
+blank2 = np.zeros(img.shape, dtype='uint8') # Create a blank image with the same shape as the image
 
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) # Convert the BGR image --> grayscale
 cv.imshow('Gray Cats', gray)
@@ -28,5 +31,21 @@ countours2, hierarchies2 = cv.findContours(canny2, cv.RETR_LIST, cv.CHAIN_APPROX
 # CHAIN_APPROX_NONE retrieves all the contours
 print(f'{len(countours)} contours found')
 print(f'{len(countours2)} contours found in blurred image')
+
+ret, thresh = cv.threshold(gray, 125, 255, cv.THRESH_BINARY) # Image, threshold value, max value, threshold type
+# THRESH_BINARY: if pixel intensity is greater than the set threshold, value set to 255, else set to 0
+# THRESH_BINARY_INV: if pixel intensity is greater than the set threshold, value set to 0, else set to 255
+# THRESH_TRUNC: if pixel intensity is greater than the set threshold, value set to the threshold, else remains the same
+# THRESH_TOZERO: if pixel intensity is greater than the set threshold, value remains the same, else set to 0
+# THRESH_TOZERO_INV: if pixel intensity is greater than the set threshold, value set to 0, else remains the same
+cv.imshow('Threshold Cats', thresh)
+countours3, hierarchies3 = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE) # Image, retrieval mode, approximation method
+print(f'{len(countours3)} contours found in threshold image')
+
+cv.drawContours(blank, countours, -1, (0, 0, 255), 1) # Image, contours, contour index (-1 means all contours), color, thickness
+cv.imshow('Contours Drawn', blank)
+# Draw countours replicates the image and draws the contours on the image found in the countours list
+cv.drawContours(blank2, countours3, -1, (0, 0, 255), 1) # Image, contours, contour index (-1 means all contours), color, thickness
+cv.imshow('Contours Drawn 2', blank2)
 
 cv.waitKey(0) # 0 means infinite time, 1000 means 1 second
